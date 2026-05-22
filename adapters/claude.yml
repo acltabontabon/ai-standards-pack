@@ -1,0 +1,15 @@
+version: 1
+adapter:
+  id: claude
+  target: Claude Code
+  description: |
+    Rendering target for Claude Code. CLAUDE.md is the single entry point Claude reads at session start.
+    Skills are rendered as individual files under .claude/skills/ by the consuming Launchpad templates,
+    not by this adapter file.
+  outputs:
+    - path: CLAUDE.md
+      kind: context
+      includes: [rules, skills, checklists, prompts]
+      notes: |
+        Combined project context. Skills are summarized here and also emitted as individual
+        .claude/skills/<id>/SKILL.md files by the Launchpad template engine.

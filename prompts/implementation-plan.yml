@@ -1,0 +1,39 @@
+version: 1
+prompts:
+  - id: implementation-plan
+    title: Implementation Plan Request
+    type: prompt
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [planning]
+      tags: [planning, ai]
+    template: |
+      You are preparing an implementation plan for a coding task. Do not write code yet.
+
+      ## Project context
+      Name: {{project_name}}
+      Stack: {{stack_summary}}
+      Relevant standards: see the engineering rules and architecture rules referenced in this project's AI context files.
+
+      ## Task
+      {{task_description}}
+
+      ## Constraints
+      - Stay within the scope above. Do not refactor unrelated code.
+      - Reuse existing services, ports, and adapters where they already do part of the work.
+      - Follow the dependency direction: domain depends on nothing, application orchestrates, adapters sit at boundaries.
+      - Public API additions require a real cross-boundary caller in this change.
+
+      ## Expected output
+      Produce a plan with these sections:
+
+      1. Context: one paragraph naming the problem and the intended outcome.
+      2. Approach: the recommended approach, not a survey of alternatives.
+      3. Files to change: list each file with a one-line description of the change.
+      4. Tradeoffs: any non-obvious tradeoff worth surfacing before code is written.
+      5. Verification: how to confirm the change works end to end (tests, run command, manual check).
+
+      Be concise. Prefer bullet lists over paragraphs.

@@ -1,0 +1,18 @@
+version: 1
+adapter:
+  id: generic
+  target: Generic AI Coding Tool
+  description: |
+    Default rendering targets for AI tools that do not have a vendor-specific convention.
+    Suitable for tools that read AGENTS.md or an .ai/context/ directory.
+  outputs:
+    - path: AGENTS.md
+      kind: context
+      includes: [rules, skills, checklists]
+      notes: |
+        Single-file context for tools that follow the agents.md convention.
+    - path: .ai/context/AI_STANDARDS.md
+      kind: context
+      includes: [rules, skills, checklists, prompts]
+      notes: |
+        Long-form standards reference for tools that load context from .ai/context/.

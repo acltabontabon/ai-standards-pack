@@ -1,0 +1,40 @@
+version: 1
+prompts:
+  - id: code-review
+    title: Code Review Request
+    type: prompt
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [review]
+      tags: [review, ai]
+    template: |
+      You are reviewing a code change. Apply the standards in this project's AI context files (engineering, architecture, testing, security, and any framework-specific rules).
+
+      ## Project context
+      Name: {{project_name}}
+      Stack: {{stack_summary}}
+
+      ## Diff
+      {{diff}}
+
+      ## What to check
+      - Scope matches the stated intent of the change. No drive-by edits.
+      - Dependency direction is preserved. No new framework imports inside the domain.
+      - Public API additions have a real caller and are not accidentally promoted internals.
+      - Tests describe observable behavior at the right layer and would fail without the change.
+      - No hallucinated APIs, missing imports, or invented patterns that do not exist elsewhere in this repo.
+      - No secret values, tokens, or full payloads appear in logs.
+
+      ## Expected output
+      A review with these sections:
+
+      1. Largest concern: the single most important issue, if any.
+      2. Other issues: bullet list, each issue with the file, the line range, and a one-sentence fix.
+      3. Suggestions: optional improvements not blocking merge.
+      4. Missing tests: behaviors that should be tested but are not.
+      5. Verdict: approve, request changes, or block, with one sentence of justification.
+
+      Be specific. Refer to file paths and line numbers. Do not restate what the code does.

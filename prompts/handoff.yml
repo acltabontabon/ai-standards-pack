@@ -1,0 +1,49 @@
+version: 1
+prompts:
+  - id: handoff
+    title: Execution Handoff Prompt
+    type: prompt
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [execution]
+      tags: [handoff, ai]
+    template: |
+      You are an AI coding agent executing a prepared task in this repository. The repository's standards live in its AI context files; load them before starting.
+
+      ## Project context
+      Name: {{project_name}}
+      Stack: {{stack_summary}}
+      Relevant key files: {{key_files}}
+
+      ## Rules summary
+      Follow the rules in the project's engineering, architecture, testing, security, and framework-specific standards. The full text is in this project's AI context. Highlights:
+      - Domain depends on nothing. Adapters sit at boundaries.
+      - Constructor injection only. Records for value types.
+      - Tests describe behavior, not implementation.
+      - No secrets in logs. Validate external input at the boundary.
+
+      ## Task
+      {{task_description}}
+
+      ## Success criteria
+      - The change addresses the task exactly. No scope expansion.
+      - All tests pass locally before declaring done.
+      - New behavior has a test that would fail without this change.
+      - Public API surface is unchanged unless the task explicitly requires it.
+      - Generated AI configuration files (if any) are regenerated from the standards pack, not edited by hand.
+
+      ## Boundaries
+      - Do not refactor unrelated modules.
+      - Do not introduce new dependencies without naming them in the final summary.
+      - Do not delete files outside the stated scope.
+      - Do not commit secrets, tokens, or local configuration overrides.
+
+      ## When you finish
+      Produce a short summary with:
+      1. What changed (files, in one or two sentences).
+      2. How you verified it.
+      3. Anything you intentionally left out and why.
+      4. Any new dependencies or configuration keys introduced.

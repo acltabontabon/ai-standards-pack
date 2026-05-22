@@ -1,0 +1,102 @@
+version: 1
+rules:
+  - id: tests-as-spec
+    title: Tests Are Specs
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [testing]
+    content: |
+      Name tests after the behavior under test (returnsEmptyWhenCacheMisses), not after the method called.
+      Each test asserts one observable outcome.
+    rationale: |
+      A failing test should communicate the broken behavior without opening the source.
+
+  - id: regression-test-for-bugs
+    title: Regression Test for Every Bug Fix
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [testing, reliability]
+    content: |
+      Every bug fix lands with a test that fails before the fix and passes after.
+      Do not ship a fix without one.
+    rationale: |
+      Bugs without regression tests come back.
+
+  - id: no-implementation-transcript-tests
+    title: Tests Do Not Transcribe Implementation
+    type: rule
+    severity: avoid
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [testing]
+    content: |
+      Do not assert the order of internal method calls when an observable outcome is available.
+      Verify what the caller sees, not how the code got there.
+    rationale: |
+      Transcript-style tests break on every refactor without catching real bugs.
+
+  - id: prefer-real-wiring-when-fast
+    title: Prefer Real Wiring When Fast
+    type: rule
+    severity: should
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [testing]
+    content: |
+      Use the real collaborator when it runs in milliseconds. Mock only what is slow, networked, or non-deterministic.
+    rationale: |
+      Mocks lie about real behavior. Real wiring catches integration mistakes early.
+
+  - id: one-behavior-per-test
+    title: One Behavior Per Test
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [testing]
+    content: |
+      A test exercises one input and verifies one outcome.
+      Do not chain unrelated assertions.
+    rationale: |
+      Single-behavior tests pinpoint regressions. Compound tests force you to read the body to find the failure.
+
+  - id: test-public-behavior
+    title: Test Public Behavior
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [testing, design]
+    content: |
+      Drive tests through public entry points: the API, service method, or use-case.
+      Do not unit-test private helpers directly.
+    rationale: |
+      Tests on public behavior survive refactors. Tests on private helpers block them.

@@ -1,0 +1,104 @@
+version: 1
+rules:
+  - id: dependency-direction
+    title: Dependencies Point Inward
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [architecture]
+    content: |
+      Domain depends on nothing.
+      Application services depend on domain.
+      Adapters (web, persistence, integration, UI) depend on application; never the reverse.
+    rationale: |
+      Inward-pointing dependencies let you swap adapters without rewriting business logic.
+
+  - id: adapters-at-boundaries
+    title: Adapters at Boundaries
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [architecture, boundaries]
+    content: |
+      Every interaction with the outside world (HTTP, DB, file, message broker, model API) goes through a named adapter type.
+      Domain code talks to ports (interfaces) the adapter implements.
+    rationale: |
+      Boundaries make external behavior testable and swappable.
+
+  - id: domain-does-not-depend-on-infrastructure
+    title: Domain Does Not Depend on Infrastructure
+    type: rule
+    severity: never
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [architecture]
+    content: |
+      Domain classes do not import Spring, JPA, RestClient, Jackson, or any framework type.
+      Move framework concerns to application or adapter layers.
+    rationale: |
+      Framework imports inside the domain bind business rules to a specific technology generation.
+
+  - id: application-services-orchestrate
+    title: Application Services Orchestrate
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [architecture]
+    content: |
+      Application services coordinate domain calls and adapter calls.
+      They contain no domain rules; the rules live in domain types.
+    rationale: |
+      Keeps the application layer thin and the domain layer the home of truth.
+
+  - id: ports-describe-needs-not-tools
+    title: Ports Describe Needs, Not Tools
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [architecture]
+    content: |
+      Define ports in terms of what the domain needs (LoadUser, RecordPayment), not what tool serves them (JpaUserRepository, KafkaPaymentProducer).
+      Adapter names can carry the technology; port names stay domain-shaped.
+    rationale: |
+      Tool-named ports leak the storage choice into the domain vocabulary.
+
+  - id: no-cross-layer-shortcuts
+    title: No Cross-Layer Shortcuts
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [architecture]
+    content: |
+      Do not call adapters from controllers or domain from adapters.
+      Route every call through the application layer.
+    rationale: |
+      Shortcuts erode the dependency direction one PR at a time.

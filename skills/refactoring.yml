@@ -1,0 +1,93 @@
+version: 1
+skills:
+  - id: refactor-module
+    title: Refactor a Module
+    type: skill
+    priority: 2
+    trigger: |
+      When restructuring code within a module without changing observable behavior.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [refactor]
+      tags: [refactoring]
+    steps:
+      - Confirm existing tests cover the behavior you intend to preserve. If not, add them first.
+      - Make the refactor in small reversible steps, compiling and running tests between each.
+      - Do not mix refactor with behavior change in the same commit.
+      - Commit when each green step is a reasonable revert point.
+    output_expectations:
+      - All tests green at every commit.
+      - Diff readable as a sequence of structural moves, not a rewrite.
+    notes: |
+      If tests are missing, write them first. Never refactor on unverified ground.
+
+  - id: extract-boundary
+    title: Extract a Boundary
+    type: skill
+    priority: 2
+    trigger: |
+      When pulling external concerns (HTTP, DB, file, model API) out of domain or application code.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [refactor]
+      tags: [refactoring, architecture]
+    steps:
+      - Identify the smallest set of operations the caller actually needs from the boundary.
+      - Define a port interface named for the need, not the tool.
+      - Move the existing calls into an adapter that implements the port.
+      - Inject the port at the boundary's edge.
+      - Verify no domain code imports framework types after the move.
+    output_expectations:
+      - A port interface in the domain or application layer.
+      - An adapter implementation in the infrastructure layer.
+      - No framework imports inside domain.
+    notes: |
+      A port should read like a domain capability. If it reads like a JDBC tutorial, rename it.
+
+  - id: simplify-abstraction
+    title: Simplify an Abstraction
+    type: skill
+    priority: 2
+    trigger: |
+      When an abstraction has only one implementation, or its caller pattern has stabilized.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [refactor]
+      tags: [refactoring, design]
+    steps:
+      - Confirm the abstraction has one production implementation and no near-future plans for a second.
+      - Inline the abstraction at the caller, removing the interface or factory layer.
+      - Re-read the resulting code and confirm it is shorter and clearer.
+      - If clarity dropped, revert and keep the abstraction.
+    output_expectations:
+      - Fewer files and fewer indirections, with no loss of testability.
+    notes: |
+      Premature inlining is as bad as premature abstraction. Only inline when the inverse cost is clear.
+
+  - id: remove-dead-code
+    title: Remove Dead Code
+    type: skill
+    priority: 2
+    trigger: |
+      When you find a class, method, branch, or configuration that has no live caller or path.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [refactor]
+      tags: [refactoring, hygiene]
+    steps:
+      - Confirm there are no live callers via grep and IDE usage search.
+      - Confirm reflection, dependency injection, and serialization frameworks are not picking it up implicitly.
+      - Delete the code and its dedicated tests.
+      - Commit the deletion separately from any behavior changes.
+    output_expectations:
+      - A diff that only removes lines.
+    notes: |
+      If the code carries the only documentation of a real concept, extract that concept into a comment or note before deleting.

@@ -1,0 +1,86 @@
+version: 1
+rules:
+  - id: ui-actions-stay-thin
+    title: UI Actions Stay Thin
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [tambo-ui]
+      tools: []
+      tasks: []
+      tags: [ui, boundaries]
+    content: |
+      A view's event handler maps the input to one application service call and updates view state with the result.
+      Do not branch on domain conditions inside a view.
+    rationale: |
+      Views are an adapter to the terminal. Logic in views cannot be reused or tested without rendering.
+
+  - id: ui-calls-application-services
+    title: UI Calls Application Services
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [tambo-ui]
+      tools: []
+      tasks: []
+      tags: [ui, boundaries]
+    content: |
+      Views call application services through the same use-case interfaces other adapters use.
+      Do not reach into repositories, model clients, or integration adapters directly from a view.
+    rationale: |
+      One application layer for all delivery channels keeps behavior consistent.
+
+  - id: errors-are-visible
+    title: Errors Are Visible in the UI
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [tambo-ui]
+      tools: []
+      tasks: []
+      tags: [ui, reliability]
+    content: |
+      Render errors with a recognizable color and a message the user can act on.
+      Do not let a background failure leave the UI in a stale state without a signal.
+    rationale: |
+      A TUI is a primary surface; silent failures look like a frozen app.
+
+  - id: no-business-logic-in-ui-components
+    title: No Business Logic in UI Components
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [tambo-ui]
+      tools: []
+      tasks: []
+      tags: [ui]
+    content: |
+      View components do not compute domain values, perform validation, or transform persistence results.
+      Receive view-shaped data; render it.
+    rationale: |
+      Domain logic in views cannot be tested without a terminal.
+
+  - id: deterministic-user-actions
+    title: Deterministic User Actions
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [tambo-ui]
+      tools: []
+      tasks: []
+      tags: [ui, reliability]
+    content: |
+      A keyboard shortcut, command, or selection produces the same effect every time given the same app state.
+      Do not vary behavior based on timing or background-task race conditions.
+    rationale: |
+      Predictable input keeps a TUI feeling reliable rather than flaky.

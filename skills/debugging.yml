@@ -1,0 +1,95 @@
+version: 1
+skills:
+  - id: fix-bug
+    title: Fix a Bug
+    type: skill
+    priority: 1
+    trigger: |
+      When a defect is reported, a test fails, or a user-visible behavior is wrong.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [bugfix]
+      tags: [debugging]
+    steps:
+      - Reproduce the failure locally with the smallest possible input.
+      - Write a failing test that captures the bug at the right layer (unit if logic, integration if wiring).
+      - Fix the root cause, not the symptom. If you find yourself adding a defensive check, ask whether the contract is wrong.
+      - Confirm the new test passes and no others regress.
+      - Write a commit message that names the bug and the root cause in one or two sentences.
+    output_expectations:
+      - A test that fails without the fix.
+      - A diff scoped to the root cause only.
+    notes: |
+      A bug fix without a regression test invites the bug back.
+
+  - id: investigate-failing-test
+    title: Investigate a Failing Test
+    type: skill
+    priority: 2
+    trigger: |
+      When a test fails locally or in CI and the cause is not obvious from the assertion message.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [bugfix]
+      tags: [debugging, testing]
+    steps:
+      - Read the test first; understand what behavior it claims to verify.
+      - Decide whether the test is wrong, the code is wrong, or the environment is wrong.
+      - If the test is wrong, fix the assertion to describe the intended behavior; do not just match current output.
+      - If the code is wrong, follow the fix-bug skill.
+      - If the environment is wrong (flaky, time-based, network-dependent), eliminate the cause; do not retry-loop around it.
+    output_expectations:
+      - A clear statement of which of the three categories applies.
+      - A test that passes for the right reason.
+    notes: |
+      A test that passes only after a retry is still failing.
+
+  - id: trace-runtime-error
+    title: Trace a Runtime Error
+    type: skill
+    priority: 2
+    trigger: |
+      When the app crashes or logs an unexpected error in development or production.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [bugfix]
+      tags: [debugging, operability]
+    steps:
+      - Capture the full stack trace and the most recent log lines that preceded it.
+      - Identify the boundary where the failure originated (HTTP call, file I/O, model call, database).
+      - Confirm whether the error is a missing validation, a contract violation, or an external failure.
+      - For missing validation, add the validation at the boundary.
+      - For contract violations, fix the caller, not the callee.
+      - For external failures, verify retries, timeouts, and the failure metric exist.
+    output_expectations:
+      - A diagnosis sentence that names cause and category.
+      - A change that prevents the same error from recurring silently.
+    notes: |
+      An error logged but not surfaced to a metric is a future incident.
+
+  - id: reduce-reproduction
+    title: Reduce a Reproduction Case
+    type: skill
+    priority: 2
+    trigger: |
+      When the failure only reproduces with a large input or under a complex scenario.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [bugfix]
+      tags: [debugging]
+    steps:
+      - Bisect the input: halve it, keep the half that still fails, repeat.
+      - Bisect the steps: remove operations one at a time, keep the minimum sequence that still fails.
+      - Capture the minimal repro as a test that the bug-fix commit will turn green.
+    output_expectations:
+      - A test under 30 lines that demonstrates the failure.
+    notes: |
+      The minimum repro is also the regression test.

@@ -1,0 +1,31 @@
+version: 1
+checklists:
+  - id: ai-generated-code
+    title: AI-Generated Code Checklist
+    type: checklist
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [review]
+      tags: [review, ai]
+    items:
+      - id: matches-repo-patterns
+        text: Generated code follows patterns that already exist in this repo. No parallel inventions.
+        required: true
+      - id: no-hallucinated-apis
+        text: Every called method, class, and annotation exists in a dependency the project actually uses.
+        required: true
+      - id: imports-and-dependencies-verified
+        text: New imports resolve. New dependencies are declared in the build file.
+        required: true
+      - id: tests-are-meaningful
+        text: Tests assert observable behavior, not the AI's narration. No always-true assertions.
+        required: true
+      - id: no-unnecessary-abstractions
+        text: No new interfaces, factories, or layers added just to look thorough. Concrete code preferred until duplication appears.
+        required: true
+      - id: scope-stayed-focused
+        text: The AI did not silently rewrite unrelated code while completing the task.
+        required: true

@@ -1,0 +1,31 @@
+version: 1
+checklists:
+  - id: pull-request
+    title: Pull Request Checklist
+    type: checklist
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [review]
+      tags: [workflow, review]
+    items:
+      - id: scope-matches-intent
+        text: The diff matches the stated scope of the PR. No drive-by edits.
+        required: true
+      - id: tests-cover-behavior
+        text: New or changed behavior has a test that would fail without the change.
+        required: true
+      - id: no-drive-by-changes
+        text: Refactor and behavior change are not mixed in the same commit.
+        required: true
+      - id: public-api-intentional
+        text: Newly public types and methods have a real cross-boundary caller.
+        required: true
+      - id: ai-config-deterministic
+        text: If generated AI configuration files changed, the change is reproducible from the source pack and the project's current state.
+        required: false
+      - id: commits-readable
+        text: Each commit is a logical step. Messages explain why, not what.
+        required: true

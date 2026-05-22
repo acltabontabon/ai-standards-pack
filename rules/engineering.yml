@@ -1,0 +1,109 @@
+version: 1
+rules:
+  - id: clean-code
+    title: Clean Code
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [readability]
+    content: |
+      Write self-documenting code. Use names that describe intent.
+      Functions do one thing and stay at one level of abstraction.
+      Reach for a comment only when a name cannot carry the meaning.
+    rationale: |
+      Code is read far more often than it is written. Naming is the cheapest documentation.
+    bad_examples:
+      - "A `// retry 3 times` comment above a fixed loop. Use a `MAX_RETRIES` constant instead."
+
+  - id: no-premature-abstraction
+    title: No Premature Abstraction
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [design]
+    content: |
+      Do not introduce an abstraction for a hypothetical future caller.
+      Wait until three concrete duplications exist before extracting a shared type.
+      Inline first, generalize last.
+    rationale: |
+      Abstractions added before duplication usually fit the imagined caller, not the real one.
+
+  - id: minimal-surface-area
+    title: Minimal Surface Area
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [design, api]
+    content: |
+      Default new types and methods to the most restrictive access modifier that compiles.
+      Widen access only when a real cross-boundary caller exists in this commit.
+      Do not expose internal helpers as public utility methods.
+    rationale: |
+      Every public symbol becomes a contract. Smaller surfaces are cheaper to change.
+
+  - id: fail-fast
+    title: Fail Fast
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [reliability]
+    content: |
+      Throw at the point of violation, with a message that names the offending input.
+      Do not swallow exceptions silently.
+      Do not return null or sentinel values to mask a programmer error.
+    rationale: |
+      Surfacing bugs near their cause is cheaper than chasing them three layers downstream.
+
+  - id: no-defensive-coding
+    title: No Defensive Coding
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [reliability]
+    content: |
+      Do not add try/catch or null checks for situations that cannot happen given the call site.
+      Validate only at trust boundaries: user input, network calls, file I/O, external APIs.
+    rationale: |
+      Defensive code in trusted paths hides real bugs and adds noise for every reader.
+
+  - id: commit-discipline
+    title: Commit Discipline
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [workflow]
+    content: |
+      Each commit is one logical change. Refactor and behavior change never share a commit.
+      The commit message explains why; the diff explains what.
+    rationale: |
+      Reviewable commits make bisects and reverts safe operations rather than archaeology.

@@ -1,0 +1,121 @@
+version: 1
+rules:
+  - id: spring-ai-behind-application-boundary
+    title: Spring AI Stays Behind the Application Boundary
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: [spring-boot, spring-ai]
+      tools: []
+      tasks: []
+      tags: [boundaries, ai]
+    content: |
+      Use Spring AI ChatClient and friends only inside application services.
+      Controllers, jobs, and UI code call the service; they do not call the model.
+    rationale: |
+      Keeps prompt assembly and provider quirks in one place that can be tested and swapped.
+
+  - id: prompt-construction-is-testable
+    title: Prompt Construction Is Testable
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: [spring-ai]
+      tools: []
+      tasks: []
+      tags: [testability, ai]
+    content: |
+      Build the final prompt string from a pure function over a request record.
+      Test that function with assertions; do not require a model call to verify it.
+    rationale: |
+      Prompt logic regresses silently when it only runs against the model.
+
+  - id: no-model-calls-in-controllers
+    title: No Model Calls in Controllers
+    type: rule
+    severity: never
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: [spring-boot, spring-ai]
+      tools: []
+      tasks: []
+      tags: [boundaries, ai]
+    content: |
+      A controller must not call ChatClient or any model API.
+      It delegates to an application service that performs the call.
+    rationale: |
+      Model calls in controllers couple the HTTP layer to a vendor and make timeouts hard to control.
+
+  - id: provider-details-do-not-leak
+    title: Provider Details Do Not Leak
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: [spring-ai]
+      tools: []
+      tasks: []
+      tags: [boundaries, ai]
+    content: |
+      Domain code does not import OpenAI, Anthropic, Ollama, or other vendor types.
+      Use Spring AI abstractions; if you need provider-specific fields, isolate them in the adapter.
+    rationale: |
+      Vendor swaps stay local. Domain logic remains portable.
+
+  - id: prompt-inputs-are-explicit
+    title: Prompt Inputs Are Explicit
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: [spring-ai]
+      tools: []
+      tasks: []
+      tags: [ai, design]
+    content: |
+      Pass prompt inputs as a typed record, not as a free-form map or vararg string concatenation.
+      Every field used in the prompt has a documented purpose.
+    rationale: |
+      Typed prompt inputs turn missing context into a compile error rather than a silent bad answer.
+
+  - id: model-output-is-validated
+    title: Model Output Is Validated
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: [spring-ai]
+      tools: []
+      tasks: []
+      tags: [reliability, ai]
+    content: |
+      Validate model output before acting on it: parse JSON, check required fields, bound list sizes.
+      Treat malformed output as a recoverable error, not a crash.
+    rationale: |
+      Models drift. Untrusted output flowing into business logic is a defect waiting to land in prod.
+
+  - id: ai-failures-are-visible
+    title: AI Failures Are Visible
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: [spring-ai]
+      tools: []
+      tasks: []
+      tags: [operability, ai]
+    content: |
+      Log model errors, timeouts, and validation failures with structured context.
+      Emit a counter metric for each failure class.
+      Do not silently fall back to defaults without surfacing the failure.
+    rationale: |
+      Silent fallbacks make AI regressions invisible until users complain.

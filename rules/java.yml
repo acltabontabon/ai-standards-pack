@@ -1,0 +1,105 @@
+version: 1
+rules:
+  - id: prefer-records-for-values
+    title: Prefer Records for Value Types
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [immutability, java]
+    content: |
+      Use Java records for value carriers: DTOs, configuration snapshots, event payloads, result types.
+      Use classes only when you need mutability, inheritance, or controlled equality semantics.
+    rationale: |
+      Records give you immutability, equals/hashCode, and toString without ceremony.
+
+  - id: package-private-by-default
+    title: Package-Private By Default
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [encapsulation]
+    content: |
+      Declare new classes and methods without an access modifier (package-private).
+      Promote to public only when an out-of-package caller exists in this commit.
+    rationale: |
+      Public is a contract for the whole module. Most internals never need that reach.
+
+  - id: constructor-injection
+    title: Constructor Injection
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [dependencies]
+    content: |
+      Receive collaborators through the constructor as final fields.
+      Do not use field injection or setter injection.
+    rationale: |
+      Constructor injection makes dependencies visible at the type signature
+      and makes the object usable in plain unit tests without a DI container.
+
+  - id: avoid-static-utility-dumping-ground
+    title: Avoid Static Utility Dumping Grounds
+    type: rule
+    severity: avoid
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [design]
+    content: |
+      Do not create generic Utils, Helpers, or Misc classes that accumulate unrelated static methods.
+      Place a helper next to the type whose behavior it extends, or behind an injected collaborator.
+    rationale: |
+      Util grab-bags grow without review and hide domain concepts behind static calls.
+
+  - id: explicit-null-boundaries
+    title: Explicit Null Boundaries
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [null-safety]
+    content: |
+      Do not return null from a method whose name implies a value.
+      Use Optional for "maybe present" return types at module boundaries.
+      Treat null as a programmer error inside a module, not a domain value.
+    rationale: |
+      Mixed null conventions force every caller to defend against the same possibility repeatedly.
+
+  - id: immutable-domain-values
+    title: Immutable Domain Values
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [immutability, domain]
+    content: |
+      Domain values (Money, IDs, status enums, configuration snapshots) are immutable.
+      Express a change by returning a new instance, not by mutating fields.
+    rationale: |
+      Immutable values can be shared across threads and tests without defensive copies.

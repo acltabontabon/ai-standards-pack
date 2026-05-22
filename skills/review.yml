@@ -1,0 +1,93 @@
+version: 1
+skills:
+  - id: review-pr
+    title: Review a Pull Request
+    type: skill
+    priority: 1
+    trigger: |
+      Before submitting or approving any pull request.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [review]
+      tags: [review, workflow]
+    steps:
+      - Read the diff end to end, not just the parts you are familiar with.
+      - Confirm the change matches its stated scope. No drive-by edits.
+      - Verify tests describe the intended behavior, not the implementation.
+      - Confirm naming, error paths, and public API surface are intentional.
+      - Check the commit history is logical and bisect-friendly.
+    output_expectations:
+      - A review comment that names the largest concern first, supporting concerns after.
+      - Approval only when the scope, tests, and naming are all defensible.
+    notes: |
+      A PR that does two things should be two PRs.
+
+  - id: review-ai-generated-code
+    title: Review AI-Generated Code
+    type: skill
+    priority: 1
+    trigger: |
+      When the code under review was produced by an AI coding assistant.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [review]
+      tags: [review, ai]
+    steps:
+      - Verify imports and dependencies refer to types that actually exist in the project's classpath.
+      - Verify API signatures match real library versions in use; reject hallucinated methods.
+      - Confirm tests assert observable behavior, not the AI's narration of what it intended.
+      - Re-check that no unnecessary abstractions were introduced to look thorough.
+      - Confirm the change respects existing patterns in the repo rather than inventing parallel ones.
+    output_expectations:
+      - Either an approval that names which AI patterns were checked, or a rejection that names a specific hallucinated or misapplied symbol.
+    notes: |
+      AI-generated code often passes compile but encodes patterns that exist nowhere else in the repo. Default to skepticism on novelty.
+
+  - id: review-public-api-change
+    title: Review a Public API Change
+    type: skill
+    priority: 1
+    trigger: |
+      When the PR changes a public method signature, removes a public type, or alters an HTTP contract.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [review]
+      tags: [review, api]
+    steps:
+      - Identify every external caller of the changed surface.
+      - Confirm a migration path or deprecation period exists.
+      - Verify response schemas remain backwards compatible or the version was bumped.
+      - Confirm new public symbols are truly meant to be public, not accidentally promoted internals.
+    output_expectations:
+      - A review note naming external callers and how they are migrated.
+    notes: |
+      Public API changes are easier to land than to retract. Treat them with the same care as a schema migration.
+
+  - id: review-test-quality
+    title: Review Test Quality
+    type: skill
+    priority: 2
+    trigger: |
+      When evaluating new or modified tests in a PR.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [review]
+      tags: [review, testing]
+    steps:
+      - Read the test name and confirm it describes a behavior, not a method call.
+      - Read the assertions and confirm they verify observable outcomes, not internal call sequences.
+      - Verify failure messages would help a future engineer diagnose the cause without opening the source.
+      - Confirm fixtures are minimal and arranged once per test.
+      - Reject tests that pass for the wrong reason (over-permissive matchers, unconditional truthy assertions).
+    output_expectations:
+      - A test suite where each test communicates intent without commentary.
+    notes: |
+      A test that always passes is a regression risk dressed up as coverage.

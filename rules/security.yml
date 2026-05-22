@@ -1,0 +1,86 @@
+version: 1
+rules:
+  - id: no-secret-logging
+    title: No Secrets in Logs
+    type: rule
+    severity: never
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [security, logging]
+    content: |
+      Do not log credentials, tokens, API keys, signed URLs, or full request/response bodies that may carry them.
+      Apply redaction at the logger level for sensitive fields.
+    rationale: |
+      A leaked log file is a credential leak. Logs are easier to exfiltrate than databases.
+
+  - id: validate-external-input
+    title: Validate External Input
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [security, boundaries]
+    content: |
+      Validate type, length, range, and format at every trust boundary: request bodies, query params, file uploads, message payloads.
+      Reject malformed input early with a deterministic error.
+    rationale: |
+      Validation at the boundary is the cheapest place to stop bad data.
+
+  - id: redact-sensitive-context
+    title: Redact Sensitive Context in Traces
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [security, observability]
+    content: |
+      Strip sensitive fields from span tags, error reports, and crash dumps.
+      Apply the same redaction policy everywhere; do not invent per-feature rules.
+    rationale: |
+      Crash reporters and tracers are often less protected than the primary log pipeline.
+
+  - id: least-privilege-config
+    title: Least-Privilege Config
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [security, configuration]
+    content: |
+      Credentials granted to a service expose the minimum set of operations needed for its current features.
+      Do not reuse a high-privilege key because it is already configured.
+    rationale: |
+      A scoped credential limits blast radius when it leaks.
+
+  - id: safe-file-writes
+    title: Safe File Writes
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [security, filesystem]
+    content: |
+      Resolve user-controlled paths against a fixed base directory and reject paths that escape it.
+      Do not pass user input directly to file APIs.
+    rationale: |
+      Path traversal is the most common file-system vulnerability and the easiest to prevent.

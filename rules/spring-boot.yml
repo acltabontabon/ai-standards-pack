@@ -1,0 +1,120 @@
+version: 1
+rules:
+  - id: thin-controllers
+    title: Thin Controllers
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: [spring-boot]
+      tools: []
+      tasks: []
+      tags: [boundaries]
+    content: |
+      A controller method parses input, calls one application service, and shapes a response.
+      Do not put orchestration, validation logic, or persistence calls in controllers.
+    rationale: |
+      Controllers are an HTTP adapter. Business logic in controllers cannot be reused from a CLI or job.
+
+  - id: service-boundaries
+    title: Service Boundaries
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: [spring-boot]
+      tools: []
+      tasks: []
+      tags: [boundaries, design]
+    content: |
+      Application services expose a small set of use-case methods.
+      A use-case takes a request record, returns a result record, and never exposes Spring or web types in its signature.
+    rationale: |
+      Use-cases stay portable across delivery channels (HTTP, CLI, scheduled job).
+
+  - id: configuration-properties
+    title: Use ConfigurationProperties for Settings
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [spring-boot]
+      tools: []
+      tasks: []
+      tags: [configuration]
+    content: |
+      Bind configuration with @ConfigurationProperties into a typed record.
+      Do not scatter @Value reads through services.
+    rationale: |
+      Typed configuration is testable, documented, and validated at startup.
+
+  - id: no-business-logic-in-configuration
+    title: No Business Logic in @Configuration
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [spring-boot]
+      tools: []
+      tasks: []
+      tags: [configuration]
+    content: |
+      @Configuration classes wire beans; they do not branch on domain conditions or transform data.
+      Put behavior in services, not in @Bean methods.
+    rationale: |
+      Configuration is wiring. Mixing behavior into it hides logic from feature search.
+
+  - id: constructor-injection
+    title: Constructor Injection
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: [java]
+      frameworks: [spring-boot]
+      tools: []
+      tasks: []
+      tags: [dependencies]
+    content: |
+      Inject collaborators through a single constructor. No @Autowired on fields or setters.
+      Components with one constructor do not need @Autowired at all.
+    rationale: |
+      Constructor injection makes dependencies explicit and keeps components testable without Spring.
+
+  - id: integration-boundaries
+    title: Wrap External Integrations
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [spring-boot]
+      tools: []
+      tasks: []
+      tags: [boundaries, integration]
+    content: |
+      Place a named adapter class around every external integration (HTTP client, database, message broker).
+      Domain code talks to the adapter's interface, not to RestClient or JdbcTemplate directly.
+    rationale: |
+      Adapters localize protocol details and make integration tests possible without leaking the network.
+
+  - id: observability-at-boundaries
+    title: Observability at Boundaries
+    type: rule
+    severity: should
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: [spring-boot]
+      tools: []
+      tasks: []
+      tags: [operability]
+    content: |
+      Log at the entry of each application service with a correlation id.
+      Emit metrics for latency and error rate at every external integration adapter.
+    rationale: |
+      Boundary logs and metrics are what oncall reads first. Domain code stays quiet.

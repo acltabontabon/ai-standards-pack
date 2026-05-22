@@ -1,0 +1,31 @@
+version: 1
+checklists:
+  - id: production-readiness
+    title: Production Readiness Checklist
+    type: checklist
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [release]
+      tags: [operability, reliability]
+    items:
+      - id: errors-visible
+        text: Failures surface through metrics, logs, or UI signals. No silent fallbacks.
+        required: true
+      - id: logs-do-not-leak-secrets
+        text: Logs do not include credentials, tokens, or full payloads that may contain them.
+        required: true
+      - id: config-externalized
+        text: Tunable values are read from configuration, not hard-coded in source.
+        required: true
+      - id: boundaries-respected
+        text: External calls go through named adapters. Domain code has no framework imports.
+        required: true
+      - id: tests-cover-risky-behavior
+        text: Risky paths (concurrency, retries, model calls, file I/O) have tests at the right layer.
+        required: true
+      - id: operational-impact-considered
+        text: New endpoints, jobs, or model calls have latency and error metrics and a dashboard or alert.
+        required: true

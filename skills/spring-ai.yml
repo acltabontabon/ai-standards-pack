@@ -1,0 +1,94 @@
+version: 1
+skills:
+  - id: add-ai-capability
+    title: Add an AI Capability
+    type: skill
+    priority: 1
+    trigger: |
+      When introducing a new feature that calls a language model through Spring AI.
+    scope:
+      languages: [java]
+      frameworks: [spring-ai]
+      tools: []
+      tasks: [feature, ai]
+      tags: [ai, delivery]
+    steps:
+      - Define a request record and a result record for the use-case at the application service layer.
+      - Place the ChatClient call inside the application service; do not expose model types upward.
+      - Build the prompt with a pure function the test suite can exercise without calling the model.
+      - Validate the model output against the result record's contract before returning.
+      - Emit a latency metric and a failure counter for the call.
+    output_expectations:
+      - One new application service method.
+      - One prompt-builder function with at least one assertion-based test.
+      - No vendor imports outside the model adapter.
+    notes: |
+      Treat the model as an integration boundary, not a library call.
+
+  - id: add-prompt-template
+    title: Add a Prompt Template
+    type: skill
+    priority: 2
+    trigger: |
+      When introducing a new prompt or modifying an existing one in a meaningful way.
+    scope:
+      languages: [java]
+      frameworks: [spring-ai]
+      tools: []
+      tasks: [ai]
+      tags: [ai, prompts]
+    steps:
+      - Express the prompt as a template that takes a typed input record.
+      - Keep instruction blocks, context blocks, and example blocks in clearly named sections.
+      - Add a test that asserts the final rendered string contains the inputs in the expected order.
+      - Record any non-obvious phrasing decisions in a short comment above the template.
+    output_expectations:
+      - A pure function from input record to final prompt string.
+      - A test that fails if a future edit accidentally drops a required input.
+    notes: |
+      Prompts are code. They deserve the same review and test discipline as any other behavior-bearing function.
+
+  - id: validate-model-output
+    title: Validate Model Output
+    type: skill
+    priority: 1
+    trigger: |
+      When consuming a model response in any feature.
+    scope:
+      languages: [java]
+      frameworks: [spring-ai]
+      tools: []
+      tasks: [ai]
+      tags: [ai, reliability]
+    steps:
+      - Parse the response into a typed record. Reject malformed responses with a recoverable error.
+      - Bound list sizes and string lengths from the model. Do not store unbounded output.
+      - Reject responses whose required fields are missing, empty, or out of range.
+      - Log validation failures with the request id and a redacted excerpt of the offending output.
+    output_expectations:
+      - Downstream code consumes a typed record, never a raw string from the model.
+    notes: |
+      Models change. Validation at the boundary is what keeps the rest of the system stable across model upgrades.
+
+  - id: add-ai-observability
+    title: Add AI Observability
+    type: skill
+    priority: 2
+    trigger: |
+      When shipping or modifying an AI-backed feature.
+    scope:
+      languages: [java]
+      frameworks: [spring-ai]
+      tools: []
+      tasks: [ai]
+      tags: [ai, operability]
+    steps:
+      - Emit a request count, latency histogram, and error counter for every model call.
+      - Tag metrics with the model name and the use-case id, not with user content.
+      - Log model errors and validation failures with structured fields and a request id.
+      - Confirm the failure path is visible on dashboards before the feature ships.
+    output_expectations:
+      - One metric set per AI use-case.
+      - A dashboard or alert that would surface a regression in failure rate within minutes.
+    notes: |
+      An AI feature with no metrics is an AI feature you cannot trust in production.

@@ -86,8 +86,8 @@ skills:
       tasks: [bugfix]
       tags: [debugging]
     steps:
-      - Bisect the input: halve it, keep the half that still fails, repeat.
-      - Bisect the steps: remove operations one at a time, keep the minimum sequence that still fails.
+      - "Bisect the input: halve it, keep the half that still fails, repeat."
+      - "Bisect the steps: remove operations one at a time, keep the minimum sequence that still fails."
       - Capture the minimal repro as a test that the bug-fix commit will turn green.
     output_expectations:
       - A test under 30 lines that demonstrates the failure.

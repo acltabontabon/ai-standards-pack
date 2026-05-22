@@ -1,0 +1,86 @@
+version: 1
+rules:
+  - id: timeouts-on-every-external-call
+    title: Every External Call Has an Explicit Timeout
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [reliability, resilience]
+    content: |
+      Every call across a process boundary (HTTP, database, message broker, cache, file system on networked storage) sets an explicit connect timeout and read timeout. Library defaults are not acceptable - they are usually "infinite" or many minutes.
+      Timeouts are configured per-adapter via @ConfigurationProperties (or equivalent) so they are tunable without code changes.
+    rationale: |
+      A single slow downstream with no timeout will exhaust the calling service's threads or connection pool and cascade the failure outward. Explicit timeouts are the cheapest backstop against cascading failure. (Hystrix / Resilience4j patterns; Release It! by Michael Nygard.)
+
+  - id: bounded-concurrency-and-queues
+    title: Bounded Concurrency and Queues
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [reliability, concurrency]
+    content: |
+      Thread pools, connection pools, and producer queues have explicit upper bounds. Do not use `Executors.newCachedThreadPool()`, unbounded `LinkedBlockingQueue`, or equivalent unbounded primitives in production code paths.
+      When the bound is reached, the system applies an explicit policy: reject (with a recoverable error to the caller), block briefly, or shed load - never silently buffer without bound.
+    rationale: |
+      Unbounded queues turn a transient slowdown into an out-of-memory crash. A bounded queue with a documented rejection policy converts overload into backpressure the caller can handle. (Effective Java item 80; reactive streams backpressure principle.)
+
+  - id: retries-with-backoff-and-cap
+    title: Retries Use Backoff, Jitter, and a Cap
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [reliability, resilience]
+    content: |
+      When an external call is retried, use exponential backoff with jitter and a maximum attempt count. Only retry operations that are idempotent or carry an idempotency key.
+      Do not retry on 4xx client errors, validation failures, or authentication failures - retrying those will not help and may amplify the problem.
+    rationale: |
+      Naive immediate retries turn one client's failure into a thundering herd that takes down the recovering downstream. Backoff with jitter spreads the load; the attempt cap prevents infinite loops. (AWS Architecture Blog "Exponential Backoff and Jitter"; Google SRE Book ch. 22.)
+
+  - id: deterministic-resource-cleanup
+    title: Deterministic Resource Cleanup
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: [java]
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [reliability, resources]
+    content: |
+      Acquired resources (file handles, sockets, JDBC connections, locks, allocated buffers) are released in a `try-with-resources` block or its language equivalent. Do not rely on finalizers, garbage collection, or "the framework will close it".
+      Methods that hand out a resource transfer ownership in their contract; the caller is responsible for closing it.
+    rationale: |
+      Resource leaks manifest as production failures hours or days after deployment - thread starvation, "too many open files", connection-pool exhaustion - and are nearly impossible to diagnose from a stack trace. (Effective Java item 9; OWASP A04:2021 - Insecure Design touches resource exhaustion.)
+
+  - id: health-and-readiness-distinct
+    title: Health and Readiness Probes Are Distinct
+    type: rule
+    severity: should
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [reliability, operability]
+    content: |
+      Services expose two probes: a `liveness` (or `health`) endpoint that returns 200 if the process is alive, and a `readiness` endpoint that returns 200 only when the process can accept traffic (dependencies reachable, caches warm, migrations applied).
+      Liveness checks do not perform downstream calls; readiness checks do, but cache results briefly.
+    rationale: |
+      Conflating the two causes outages: a momentarily-degraded dependency triggers a liveness restart loop instead of just routing traffic elsewhere. The split is standard in Kubernetes and equivalent orchestrators. (Kubernetes documentation; twelve-factor "Disposability".)

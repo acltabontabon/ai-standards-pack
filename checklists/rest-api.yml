@@ -1,0 +1,46 @@
+version: 1
+checklists:
+  - id: rest-api-endpoint
+    title: REST API Endpoint Checklist
+    type: checklist
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, review]
+    items:
+      - id: versioned-path
+        text: The endpoint path or media type carries an explicit version (e.g. `/v1/...`).
+        required: true
+      - id: auth-decision-documented
+        text: Authentication requirement is documented; if anonymous, it appears in the central allow-list with justification.
+        required: true
+      - id: rate-limit-policy
+        text: The endpoint has a documented rate-limit decision (specific limit, named tier, or justified "unlimited" allow-list entry). When limited, responses use `429` + `Retry-After` and the standard `RateLimit` headers.
+        required: true
+      - id: status-codes-correct
+        text: Response status codes match the outcome (201 for create with `Location`, 204 for accepted-no-body, 4xx/5xx mapped correctly).
+        required: true
+      - id: error-shape-problem-details
+        text: Error responses use the RFC 7807 `application/problem+json` envelope.
+        required: true
+      - id: idempotency-for-non-idempotent-post
+        text: If the endpoint is a non-idempotent POST, it accepts `Idempotency-Key` and dedupes within the documented window.
+        required: false
+      - id: correlation-id-propagated
+        text: The endpoint reads or generates `X-Correlation-ID` (or `traceparent`) and echoes it in the response.
+        required: true
+      - id: pagination-cursor
+        text: If the endpoint returns a collection, it uses cursor-based pagination with a server-enforced max page size.
+        required: false
+      - id: openapi-documented
+        text: The endpoint is documented in the project's OpenAPI (or equivalent) spec, including request, response, and error shapes.
+        required: true
+      - id: tests-cover-validation-and-happy-path
+        text: Controller-level tests cover at least one validation failure and one happy-path call.
+        required: true
+      - id: hypermedia-links-if-stateful
+        text: If the resource has a non-trivial state machine, the response embeds `_links` for the current affordances.
+        required: false

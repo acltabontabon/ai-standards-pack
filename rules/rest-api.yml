@@ -1,0 +1,174 @@
+version: 1
+rules:
+  - id: problem-details-error-envelope
+    title: RFC 7807 Problem Details for Errors
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, errors]
+    content: |
+      Error responses use the RFC 7807 `application/problem+json` shape: `type`, `title`, `status`, `detail`, `instance`.
+      Domain-specific fields go alongside the standard ones, never replace them.
+      Do not invent a per-endpoint error envelope.
+    rationale: |
+      A single error shape lets clients write one error handler instead of N. Problem Details is the de-facto standard and is supported by every mainstream HTTP client library.
+
+  - id: status-code-discipline
+    title: Use Status Codes Faithfully
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest]
+    content: |
+      Match the response status to the outcome: 201 for resource creation (with a `Location` header), 204 for accepted-no-body, 400 for client validation failure, 401 vs 403 distinction, 404 for missing resource, 409 for state conflict, 422 for semantic validation, 5xx only for server faults the client cannot influence.
+      Do not return 200 with `{"success": false}` for failures.
+    rationale: |
+      Status codes are the API's first signal to caching, retry, and monitoring layers. A wrong code defeats every downstream system that reads it.
+
+  - id: idempotency-for-mutations
+    title: Idempotency Keys for Non-Idempotent Mutations
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, reliability]
+    content: |
+      POST endpoints whose effect is not naturally idempotent accept an `Idempotency-Key` header and return the original response on replay within the dedup window.
+      PUT and DELETE are inherently idempotent; the same call repeated must produce the same end state.
+    rationale: |
+      Networks retry. Without an idempotency contract a single user click can charge twice. The header is cheap to add at the boundary and expensive to retrofit later.
+
+  - id: api-versioning-explicit
+    title: Explicit API Versioning
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, evolution]
+    content: |
+      Every public API path or media type carries an explicit version (e.g. `/v1/...` or `application/vnd.team.resource.v1+json`).
+      Breaking changes go to a new version; in-place mutation of a versioned endpoint is forbidden.
+    rationale: |
+      Unversioned APIs become un-evolvable. Picking a versioning scheme up front costs one URL segment; not picking one costs every future caller.
+
+  - id: pagination-cursor-first
+    title: Cursor Pagination for Collections
+    type: rule
+    severity: should
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, scale]
+    content: |
+      Collection endpoints expose cursor-based pagination: a `cursor` query param and a response body field carrying the next cursor (or null when exhausted).
+      Page sizes have a server-enforced maximum.
+      Offset pagination is acceptable only when the dataset is bounded and small.
+    rationale: |
+      Offset pagination degrades as data grows and breaks under concurrent writes. Cursors are stable and scale.
+
+  - id: correlation-id-header
+    title: Propagate a Correlation ID
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, observability]
+    content: |
+      Every request reads or generates an `X-Correlation-ID` (or `traceparent`) and echoes it in the response.
+      Application code logs the correlation id at boundary entry.
+    rationale: |
+      A correlation id is what makes a multi-service failure tractable. The boundary is the cheapest place to enforce it.
+
+  - id: rest-resource-naming
+    title: Resource-Oriented Path Naming
+    type: rule
+    severity: should
+    priority: 3
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, design]
+    content: |
+      Paths name resources as plural nouns (`/v1/orders/{id}`), not verbs (`/v1/createOrder`).
+      Use sub-resources for ownership (`/v1/orders/{id}/line-items`).
+      Reserve POST-on-collection for create and DELETE-on-item for delete.
+    rationale: |
+      Resource-oriented paths compose. Verb paths force a new endpoint for every new action and resist HATEOAS or hypermedia evolution.
+
+  - id: hypermedia-links-for-state
+    title: Hypermedia Links for Stateful Resources (Optional)
+    type: rule
+    severity: should
+    priority: 3
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, hypermedia, hateoas]
+    content: |
+      For resources with non-trivial state transitions (workflows, lifecycles), consider embedding a `_links` object that names the affordances currently available on this representation (e.g. `cancel`, `approve`, `next-page`).
+      HATEOAS adoption in real-world APIs is mixed - treat this as a team choice, not a universal must. If the team chooses hypermedia, apply it consistently across all stateful resources rather than ad-hoc.
+    rationale: |
+      Server-driven state transitions reduce client/server drift when adopted consistently. The cost is heavier representations and a steeper client learning curve, which is why most public APIs (Stripe, GitHub, Twilio) ship without it. Decide once at the team level.
+
+  - id: auth-required-by-default
+    title: Authentication Required by Default
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, security]
+    content: |
+      Every endpoint requires authentication unless an explicit, justified exception lists it as anonymous.
+      Anonymous endpoints are documented in a single allow-list, not scattered across controllers.
+    rationale: |
+      Default-deny prevents the most common API leak: an endpoint shipped without auth because nobody thought to add it. A single allow-list is auditable.
+
+  - id: documented-rate-limit-policy
+    title: Every Endpoint Has a Documented Rate-Limit Policy
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [feature]
+      tags: [rest, reliability, security]
+    content: |
+      Every endpoint has a documented rate-limit decision: either a specific limit (requests-per-window), a named tier configured centrally, or an explicit "no limit, justified" entry in an allow-list. When limited, the response uses standard `429 Too Many Requests` plus `Retry-After` (RFC 9110) and the IETF `RateLimit` / `RateLimit-Policy` headers (RFC 9239 draft, widely adopted by GitHub, Twitter, Discord).
+      How the limit is enforced (gateway, middleware, app-level token bucket) is a team implementation choice.
+    rationale: |
+      Unbounded endpoints are a denial-of-service waiting to happen and a cost surprise on metered infrastructure. A documented decision per endpoint, surfaced via standard headers, is the OWASP API Security Top 10 baseline (API4:2023 - Unrestricted Resource Consumption).

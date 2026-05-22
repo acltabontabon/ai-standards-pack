@@ -17,9 +17,11 @@ includes:
     - rules/java.yml
     - rules/spring-boot.yml
     - rules/spring-ai.yml
+    - rules/rest-api.yml
     - rules/testing.yml
     - rules/architecture.yml
     - rules/security.yml
+    - rules/reliability.yml
     - rules/tambo-ui.yml
   skills:
     - skills/delivery.yml
@@ -31,6 +33,7 @@ includes:
     - checklists/pull-request.yml
     - checklists/production-readiness.yml
     - checklists/ai-generated-code.yml
+    - checklists/rest-api.yml
   prompts:
     - prompts/implementation-plan.yml
     - prompts/code-review.yml

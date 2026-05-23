@@ -51,6 +51,14 @@ rules:
     rationale: |
       Constructor injection makes dependencies visible at the type signature
       and makes the object usable in plain unit tests without a DI container.
+    check:
+      kind: forbid-pattern
+      pattern: '@Autowired\s+(private|protected)\s+\w+'
+      includes:
+        - "**/*.java"
+      excludes:
+        - "**/test/**"
+        - "**/*Test.java"
 
   - id: avoid-static-utility-dumping-ground
     title: Avoid Static Utility Dumping Grounds
@@ -68,6 +76,14 @@ rules:
       Place a helper next to the type whose behavior it extends, or behind an injected collaborator.
     rationale: |
       Util grab-bags grow without review and hide domain concepts behind static calls.
+    check:
+      kind: forbid-pattern
+      pattern: '^\s*(public\s+)?(final\s+)?class\s+\w+(Utils?|Helpers?|Misc)\b'
+      includes:
+        - "**/*.java"
+      excludes:
+        - "**/test/**"
+        - "**/*Test.java"
 
   - id: explicit-null-boundaries
     title: Explicit Null Boundaries

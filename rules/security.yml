@@ -16,6 +16,14 @@ rules:
       Apply redaction at the logger level for sensitive fields.
     rationale: |
       A leaked log file is a credential leak. Logs are easier to exfiltrate than databases.
+    check:
+      kind: forbid-pattern
+      pattern: '(?i)log\.\w+\([^)]*\b(password|secret|apiKey|api_key|access_?token|refresh_?token|private_?key|client_?secret|bearer)\b'
+      includes:
+        - "**/*.java"
+      excludes:
+        - "**/test/**"
+        - "**/*Test.java"
 
   - id: validate-external-input
     title: Validate External Input

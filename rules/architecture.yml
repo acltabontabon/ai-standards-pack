@@ -51,6 +51,20 @@ rules:
       Move framework concerns to application or adapter layers.
     rationale: |
       Framework imports inside the domain bind business rules to a specific technology generation.
+    check:
+      kind: forbid-import
+      inPackages:
+        - "**/domain/**"
+      imports:
+        - "org.springframework.**"
+        - "jakarta.persistence.**"
+        - "jakarta.servlet.**"
+        - "javax.persistence.**"
+        - "javax.servlet.**"
+        - "com.fasterxml.jackson.**"
+        - "org.hibernate.**"
+        - "org.springframework.web.**"
+        - "org.springframework.boot.**"
 
   - id: application-services-orchestrate
     title: Application Services Orchestrate

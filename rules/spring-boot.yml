@@ -16,6 +16,15 @@ rules:
       Do not put orchestration, validation logic, or persistence calls in controllers.
     rationale: |
       Controllers are an HTTP adapter. Business logic in controllers cannot be reused from a CLI or job.
+    check:
+      kind: llm
+      targets: controllers
+      question: |
+        Does this controller class contain orchestration, validation logic, persistence calls,
+        or any logic beyond parsing input, calling one application service, and shaping a
+        response? Constructor wiring and DTO mapping are acceptable; loops, conditionals over
+        domain data, JdbcTemplate / EntityManager / RestClient calls, and multiple service
+        calls per handler are not.
 
   - id: service-boundaries
     title: Service Boundaries
@@ -84,6 +93,14 @@ rules:
       Components with one constructor do not need @Autowired at all.
     rationale: |
       Constructor injection makes dependencies explicit and keeps components testable without Spring.
+    check:
+      kind: forbid-pattern
+      pattern: '@Autowired\s+(private|protected)\s+\w+'
+      includes:
+        - "**/*.java"
+      excludes:
+        - "**/test/**"
+        - "**/*Test.java"
 
   - id: integration-boundaries
     title: Wrap External Integrations

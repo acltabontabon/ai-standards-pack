@@ -45,7 +45,11 @@ rules:
       frameworks: []
       tools: []
       tasks: [feature]
-      tags: [rest, reliability]
+      # Scoped to rest-mutation specifically: idempotency keys are for POST/PUT/DELETE,
+      # irrelevant for read-only GET endpoints. Launchpad's task classifier emits
+      # `rest-mutation` when the task description / interview mentions create / update /
+      # delete / post / patch etc.
+      tags: [rest-mutation, reliability]
     content: |
       POST endpoints whose effect is not naturally idempotent accept an `Idempotency-Key` header and return the original response on replay within the dedup window.
       PUT and DELETE are inherently idempotent; the same call repeated must produce the same end state.
@@ -79,7 +83,11 @@ rules:
       frameworks: []
       tools: []
       tasks: [feature]
-      tags: [rest, scale]
+      # Scoped to rest-collection: pagination only matters when the endpoint
+      # returns a list. A single-resource endpoint (GET /users/{id}) has nothing
+      # to paginate. Classifier emits `rest-collection` for tasks mentioning
+      # list / search / browse / all / many / collection / page.
+      tags: [rest-collection, scale]
     content: |
       Collection endpoints expose cursor-based pagination: a `cursor` query param and a response body field carrying the next cursor (or null when exhausted).
       Page sizes have a server-enforced maximum.
@@ -132,7 +140,9 @@ rules:
       frameworks: []
       tools: []
       tasks: [feature]
-      tags: [rest, hypermedia, hateoas]
+      # Stateful resources are usually collections or workflows; hypermedia for a
+      # single read-only endpoint is overkill. Scoped to rest-collection.
+      tags: [rest-collection, hypermedia, hateoas]
     content: |
       For resources with non-trivial state transitions (workflows, lifecycles), consider embedding a `_links` object that names the affordances currently available on this representation (e.g. `cancel`, `approve`, `next-page`).
       HATEOAS adoption in real-world APIs is mixed - treat this as a team choice, not a universal must. If the team chooses hypermedia, apply it consistently across all stateful resources rather than ad-hoc.

@@ -4,9 +4,11 @@ name: Launchpad Default AI Standards
 description: |
   Default standards pack for preparing repo-aware AI coding context and handoff prompts.
 
-  Tech leads author the rules, skills, checklists, prompts, and adapter rendering
-  targets in this pack. Launchpad resolves the pack against a target repository
-  and renders AI tool instructions (Claude, Cursor, generic) using the adapter files.
+  Tech leads author the rules, skills, checklists, prompts, and the AGENTS.md
+  rendering target in this pack. Launchpad resolves the pack against a target
+  repository, renders AGENTS.md + .ai/* canonically, and dispatches to
+  developer-selected AgentProjection beans (.claude/skills/, .cursor/rules/,
+  .windsurf/rules/) for agent-native discovery files.
 
   Launchpad prepares. Paid AI coding agents execute against the rendered output.
 maintainers:
@@ -39,6 +41,4 @@ includes:
     - prompts/code-review.yml
     - prompts/handoff.yml
 adapters:
-  generic: adapters/generic.yml
-  claude: adapters/claude.yml
-  cursor: adapters/cursor.yml
+  agents: adapters/agents.yml

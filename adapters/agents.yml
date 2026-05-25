@@ -1,0 +1,20 @@
+version: 1
+adapter:
+  id: agents
+  target: AI coding agents (vendor-neutral)
+  description: |
+    Rendering target for the vendor-neutral AGENTS.md primary file. AGENTS.md
+    is the cross-vendor convention read natively by Claude Code (via fallback),
+    Cursor, Codex CLI, Aider, Continue, Zed, Jules, Amp, and others.
+
+    Agent-native discovery files (.claude/skills/, .cursor/rules/, .windsurf/rules/)
+    are not adapter outputs - they are produced by AgentProjection beans in
+    Launchpad and selected by the developer in the TUI projection picker.
+  outputs:
+    - path: AGENTS.md
+      kind: context
+      includes: [rules, skills, checklists, prompts]
+      notes: |
+        Single vendor-neutral context file. Companion .ai/*.md files
+        (engineering-rules.md, stack.md, checklists.md, index.md) are emitted
+        canonically by Launchpad alongside this primary file.

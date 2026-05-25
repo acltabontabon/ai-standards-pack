@@ -1,0 +1,108 @@
+version: 1
+rules:
+  - id: ubiquitous-language
+    title: Ubiquitous Language
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [ddd, naming]
+    content: |
+      Names in code match the names the business uses for the same concepts.
+      When the business renames a concept (Customer -> Member, Order -> Cart), rename the code in the same change.
+      Do not maintain a private "tech" vocabulary alongside the business one.
+    rationale: |
+      A divergent vocabulary forces every conversation to translate twice and quietly multiplies bugs at the boundary.
+
+  - id: bounded-context-isolation
+    title: Bounded Context Isolation
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [ddd, architecture]
+    content: |
+      Each module owns one model of one bounded context. The same word may mean different things across contexts (a Billing Customer is not a Support Customer).
+      Cross-context calls go through an explicit translator (anti-corruption layer or context-mapped DTO); do not share domain types across contexts.
+    rationale: |
+      Shared types across contexts couple unrelated change cycles and force every change to satisfy every consumer's mental model.
+
+  - id: aggregate-consistency-boundary
+    title: Aggregate as Consistency Boundary
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [ddd, transactions]
+    content: |
+      All mutations to an aggregate route through its root.
+      One transaction commits one aggregate; cross-aggregate consistency is achieved via domain events, not multi-aggregate transactions.
+      Repositories load and store aggregates whole, not pieces of them.
+    rationale: |
+      The aggregate boundary is what makes invariants enforceable. Bypassing the root re-introduces the very inconsistencies aggregates exist to prevent.
+
+  - id: value-objects-immutable
+    title: Value Objects Are Immutable
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [ddd, immutability]
+    content: |
+      Domain values (Money, EmailAddress, OrderId, DateRange) are immutable, side-effect-free, and equal by structure.
+      A "change" returns a new instance.
+      In Java, prefer records; in other languages, use the idiomatic immutable value type.
+      Pairs with java.yml::immutable-domain-values for the language-specific guidance.
+    rationale: |
+      Immutable values are safe to share, cache, and compare. Mutable "values" are entities pretending to be values, and break equality.
+
+  - id: domain-events-for-state-changes
+    title: Domain Events for Material State Changes
+    type: rule
+    severity: should
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [ddd, events]
+    content: |
+      Material state changes (OrderPlaced, PaymentReceived, AccountClosed) emit a domain event named in the past tense.
+      Downstream concerns (notifications, projections, integrations) subscribe to the event; they do not poll the aggregate.
+      Pairs with event-driven.yml for the cross-process delivery rules.
+    rationale: |
+      Events keep aggregates from accumulating responsibilities they do not own (sending email, updating read models, calling integrations).
+
+  - id: anti-corruption-layer-at-integration
+    title: Anti-Corruption Layer at External Boundaries
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [ddd, integration, boundaries]
+    content: |
+      Wrap external models (vendor APIs, legacy systems, third-party SDKs) in an anti-corruption layer that translates between their vocabulary and ours.
+      Domain code never imports or names external types directly.
+    rationale: |
+      Without an ACL, external naming and data shapes leak into the domain and the next vendor swap becomes a rewrite.

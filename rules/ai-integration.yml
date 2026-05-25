@@ -1,18 +1,18 @@
 version: 1
 rules:
-  - id: spring-ai-behind-application-boundary
-    title: Spring AI Stays Behind the Application Boundary
+  - id: model-client-behind-application-boundary
+    title: Model Client Stays Behind the Application Boundary
     type: rule
     severity: must
     priority: 1
     scope:
-      languages: [java]
-      frameworks: [spring-boot, spring-ai]
+      languages: []
+      frameworks: []
       tools: []
       tasks: []
       tags: [boundaries, ai]
     content: |
-      Use Spring AI ChatClient and friends only inside application services.
+      Use the model client SDK inside application services only.
       Controllers, jobs, and UI code call the service; they do not call the model.
     rationale: |
       Keeps prompt assembly and provider quirks in one place that can be tested and swapped.
@@ -24,7 +24,7 @@ rules:
     priority: 1
     scope:
       languages: []
-      frameworks: [spring-ai]
+      frameworks: []
       tools: []
       tasks: []
       tags: [testability, ai]
@@ -40,13 +40,13 @@ rules:
     severity: never
     priority: 1
     scope:
-      languages: [java]
-      frameworks: [spring-boot, spring-ai]
+      languages: []
+      frameworks: []
       tools: []
       tasks: []
       tags: [boundaries, ai]
     content: |
-      A controller must not call ChatClient or any model API.
+      A controller must not call the model client or any model API.
       It delegates to an application service that performs the call.
     rationale: |
       Model calls in controllers couple the HTTP layer to a vendor and make timeouts hard to control.
@@ -58,13 +58,13 @@ rules:
     priority: 2
     scope:
       languages: []
-      frameworks: [spring-ai]
+      frameworks: []
       tools: []
       tasks: []
       tags: [boundaries, ai]
     content: |
       Domain code does not import OpenAI, Anthropic, Ollama, or other vendor types.
-      Use Spring AI abstractions; if you need provider-specific fields, isolate them in the adapter.
+      Use a vendor-neutral abstraction; if you need provider-specific fields, isolate them in the adapter.
     rationale: |
       Vendor swaps stay local. Domain logic remains portable.
 
@@ -75,7 +75,7 @@ rules:
     priority: 2
     scope:
       languages: []
-      frameworks: [spring-ai]
+      frameworks: []
       tools: []
       tasks: []
       tags: [ai, design]
@@ -92,7 +92,7 @@ rules:
     priority: 1
     scope:
       languages: []
-      frameworks: [spring-ai]
+      frameworks: []
       tools: []
       tasks: []
       tags: [reliability, ai]
@@ -109,7 +109,7 @@ rules:
     priority: 2
     scope:
       languages: []
-      frameworks: [spring-ai]
+      frameworks: []
       tools: []
       tasks: []
       tags: [operability, ai]

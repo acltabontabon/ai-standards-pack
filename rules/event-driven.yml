@@ -1,0 +1,106 @@
+version: 1
+rules:
+  - id: events-are-immutable-facts
+    title: Events Are Immutable Facts
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [events, immutability]
+    content: |
+      Events are named in the past tense (OrderShipped, PaymentRecorded, UserDeactivated) and carry the data needed to reconstruct the fact.
+      Once published, an event is never mutated. Corrections are expressed as new events (OrderShipmentCorrected), not by editing the original.
+    rationale: |
+      Mutable events make every consumer's read a guessing game. Past-tense naming makes the data flow self-describing.
+
+  - id: idempotent-consumers
+    title: Idempotent Consumers
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [events, reliability]
+    content: |
+      Every consumer handles redelivery without side-effects. Carry a stable dedup key (event id, business id) in the envelope and persist the processed-set so replays are no-ops.
+      Do not rely on the broker's "exactly once" claims; assume at-least-once delivery.
+    rationale: |
+      Brokers retry, networks repeat, and operators replay. A consumer that double-charges on redelivery is a known incident waiting for its trigger.
+
+  - id: event-schema-evolves-additively
+    title: Event Schemas Evolve Additively
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [events, evolution]
+    content: |
+      Adding optional fields is fine. Renaming, removing, or retyping a field requires a new event type (OrderShipped_v2) or a versioned envelope.
+      Consumers tolerate unknown fields; producers never break documented fields.
+    rationale: |
+      Async producers and consumers deploy independently. A breaking schema change in either direction takes down everyone in flight at the time.
+
+  - id: dead-letter-on-poison-messages
+    title: Dead-Letter on Poison Messages
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [events, reliability]
+    content: |
+      Messages that fail processing repeatedly route to a dead-letter queue with the failure reason, original payload, and a correlation id.
+      Never silently drop, infinite-retry, or commit the offset to "make it go away".
+      A dashboard or alert surfaces non-empty DLQs.
+    rationale: |
+      A silent drop is a data loss bug. An infinite retry blocks the partition. The DLQ is the cheapest queue-shaped middle ground.
+
+  - id: publish-via-outbox
+    title: Publish via Transactional Outbox
+    type: rule
+    severity: should
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [events, transactions]
+    content: |
+      Persist the state change and the event in one local database transaction via an outbox table.
+      A separate relay reads the outbox and publishes to the broker.
+      Do not publish to the broker inside the business transaction (dual-write problem).
+    rationale: |
+      Without an outbox, a broker hiccup mid-commit leaves state and events out of sync. The outbox pattern collapses the dual-write into a single transaction.
+
+  - id: eventual-consistency-acknowledged
+    title: Eventual Consistency Acknowledged at the API
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [events, rest]
+    content: |
+      Endpoints that trigger asynchronous work return 202 Accepted with a job or resource id the caller can poll, or a follow-up event subscription.
+      Do not return 200 with a final-looking state that has not yet been computed.
+      Pairs with rest-api.yml::status-code-discipline.
+    rationale: |
+      Returning 200 for "we will get to it" trains clients to assume synchrony and bake in races. 202 is the honest answer.

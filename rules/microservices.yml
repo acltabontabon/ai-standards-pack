@@ -1,0 +1,90 @@
+version: 1
+rules:
+  - id: service-per-business-capability
+    title: One Service Per Business Capability
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [microservices, architecture]
+    content: |
+      A service owns one business capability end to end (Billing, Catalog, Identity), not a technical layer (UserService + UserDatabase + UserUI).
+      The owning team can change the service without coordinating across other capability teams.
+    rationale: |
+      Capability-aligned services change with the business. Layer-aligned services force every business change to touch every layer service.
+
+  - id: decentralized-data-ownership
+    title: Decentralized Data Ownership
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [microservices, data]
+    content: |
+      One service owns one database; no other service reads or writes it directly.
+      Cross-service reads go through the owner's API or replicated read models populated from events.
+      Shared databases between services are forbidden, even "just for reporting".
+    rationale: |
+      A shared database makes schemas a cross-team contract and turns every migration into a coordinated release. Decentralized data is what makes deployment independence real.
+
+  - id: contract-tests-between-services
+    title: Contract Tests Between Services
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [microservices, testing]
+    content: |
+      Every consumer of a service maintains a consumer-driven contract test (Pact, Spring Cloud Contract, or equivalent) that the provider's CI runs.
+      Breaking the contract fails the provider's build before deploy, not in production.
+    rationale: |
+      Without contract tests, breaking changes ship silently and the consumer learns about them at runtime. CDC moves the failure left into CI.
+
+  - id: deployment-independence
+    title: Deployment Independence
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [microservices, release]
+    content: |
+      Each service ships on its own cadence.
+      No service requires "release together with X" or "deploy after Y" except via documented version-compatibility windows.
+      Coordinated releases are an architecture smell, not a process.
+    rationale: |
+      The whole point of separate services is independent change. Coordinated releases give you the operational cost of microservices without the agility benefit.
+
+  - id: service-api-versioning-at-boundary
+    title: Versioning at the Service Boundary
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [microservices, evolution]
+    content: |
+      Cross-service APIs (HTTP, gRPC, event topics) are explicitly versioned.
+      Breaking changes require a new version with a documented deprecation window for the old one; the old version is removed only after consumers migrate.
+      Internal refactors never break consumers without that window.
+      Pairs with rest-api.yml::api-versioning-explicit.
+    rationale: |
+      Unversioned cross-service APIs force every change to be backward-compatible forever or to break callers without warning. Explicit versioning gives both sides a clean migration path.

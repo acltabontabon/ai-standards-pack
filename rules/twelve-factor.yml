@@ -1,0 +1,106 @@
+version: 1
+rules:
+  - id: config-in-env
+    title: Config in the Environment
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [twelve-factor, configuration]
+    content: |
+      Per-environment values (URLs, credentials, feature flags, region, tier) come from environment variables or a secrets manager.
+      The same binary runs in dev, staging, and prod; only configuration differs.
+      Pairs with security.yml::secrets-not-in-source.
+    rationale: |
+      Code that branches on hostname or hardcodes per-environment URLs cannot be promoted safely. Env-driven config is what makes the "build once, deploy many" promise real.
+
+  - id: stateless-processes
+    title: Stateless Processes
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [twelve-factor, scaling]
+    content: |
+      The process keeps no session data, no user-specific caches, and no scratch files between requests.
+      Share state via a backing store (database, cache, queue). Sticky sessions are a workaround, not a design.
+    rationale: |
+      Stateless processes scale horizontally, restart freely, and survive node loss. State in-process is the cheapest way to make a service fragile.
+
+  - id: backing-services-as-attached-resources
+    title: Backing Services as Attached Resources
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [twelve-factor, configuration]
+    content: |
+      Databases, queues, caches, object stores, and third-party APIs are addressed by URL or config key.
+      Swapping a managed Postgres for a different one, or a self-hosted Redis for a cloud equivalent, is a config change with no code edit.
+    rationale: |
+      When the integration is hard-coded, every infra migration is a code migration. Attached resources keep code portable across environments and vendors.
+
+  - id: logs-as-streams
+    title: Logs as Event Streams
+    type: rule
+    severity: must
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [twelve-factor, operability]
+    content: |
+      The app writes structured logs to stdout and stderr.
+      Log routing, retention, rotation, and aggregation are the platform's responsibility, not the app's.
+      Do not open log files, configure rolling appenders to disk, or manage retention from code.
+    rationale: |
+      In-app log file management couples the app to one deploy target and hides logs from cluster-wide tooling.
+
+  - id: dev-prod-parity
+    title: Dev / Prod Parity
+    type: rule
+    severity: should
+    priority: 2
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [twelve-factor, parity]
+    content: |
+      Use the same tech stack across environments: same database engine and version, same broker, same cache.
+      Substitutions like SQLite-in-dev / Postgres-in-prod or in-memory queues for a real broker hide integration bugs until production.
+    rationale: |
+      Parity is what lets a green CI run predict prod behavior. Divergent stacks turn every release into a "works on my container" gamble.
+
+  - id: disposability
+    title: Disposability
+    type: rule
+    severity: must
+    priority: 1
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: []
+      tags: [twelve-factor, reliability]
+    content: |
+      The process starts fast (seconds, not minutes) and shuts down gracefully on SIGTERM.
+      On shutdown: stop accepting new work, drain in-flight requests within a bounded grace period, then exit.
+      Pairs with reliability.yml::health-and-readiness-distinct.
+    rationale: |
+      Slow or messy shutdowns turn every deploy and autoscaling event into a partial outage. Fast disposability is what makes elasticity work.

@@ -16,15 +16,18 @@ maintainers:
 includes:
   rules:
     - rules/engineering.yml
+    - rules/architecture.yml
+    - rules/ddd.yml
+    - rules/event-driven.yml
+    - rules/twelve-factor.yml
+    - rules/microservices.yml
+    - rules/testing.yml
+    - rules/reliability.yml
+    - rules/rest-api.yml
+    - rules/security.yml
+    - rules/ai-integration.yml
     - rules/java.yml
     - rules/spring-boot.yml
-    - rules/spring-ai.yml
-    - rules/rest-api.yml
-    - rules/testing.yml
-    - rules/architecture.yml
-    - rules/security.yml
-    - rules/reliability.yml
-    - rules/tambo-ui.yml
   skills:
     - skills/delivery.yml
     - skills/debugging.yml

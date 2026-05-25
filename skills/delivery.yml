@@ -1,30 +1,5 @@
 version: 1
 skills:
-  - id: add-feature
-    title: Add a Feature
-    type: skill
-    priority: 1
-    trigger: |
-      When adding a new user-facing capability that spans more than a single endpoint or view.
-    scope:
-      languages: []
-      frameworks: []
-      tools: []
-      tasks: [feature]
-      tags: [delivery]
-    steps:
-      - Identify the entry point (controller, view, scheduled job, or CLI command) and the application service that owns the use-case.
-      - Look for existing services, ports, and adapters that already do part of the work. Reuse before introducing.
-      - Wire the new behavior through the same layers existing features use; do not invent a new shortcut.
-      - Add tests that describe the new behavior before broadening scope or polishing.
-      - Update relevant docs (CLAUDE.md or README) only if user-visible behavior changed.
-    output_expectations:
-      - A single PR with a clear scope statement.
-      - Tests covering the happy path and the most likely failure path.
-      - No new public types unless a real cross-package caller exists.
-    notes: |
-      Keep new types package-private until a cross-package caller exists.
-
   - id: add-endpoint
     title: Add an HTTP Endpoint
     type: skill
@@ -92,7 +67,7 @@ skills:
       - Bind it through @ConfigurationProperties or an existing settings record; do not scatter @Value reads.
       - If user-editable at runtime, surface a field in the settings UI and persist to the user config file.
       - Reference the new setting from one well-named place; do not pass it through several layers as a parameter.
-      - Update CLAUDE.md or README configuration section.
+      - Update the project's agent context file (AGENTS.md) or README configuration section.
     output_expectations:
       - One typed accessor for the new setting.
       - A sensible default that keeps existing behavior unchanged when the setting is absent.

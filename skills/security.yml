@@ -1,0 +1,30 @@
+version: 1
+skills:
+  - id: patch-cve
+    title: Patch a CVE
+    type: skill
+    priority: 1
+    trigger: |
+      When a CVE alert from Snyk, Dependabot, or GitHub Advisories lands against a dependency in the project.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [security, maintenance]
+      tags: [security, dependencies]
+    steps:
+      - Identify the vulnerable dependency, the affected version range, and the advisory id.
+      - Confirm whether the vulnerable code path is reachable from this project, and note the conclusion in the PR body either way.
+      - Bump the dependency to the smallest fixed version that resolves the advisory, transitive pulls included.
+      - Adjust any call sites whose API changed between the old and new version; keep behavior unchanged.
+      - Run the full test suite and any contract tests against downstream callers.
+      - If no fixed version exists, document the mitigation (config change, WAF rule, temporary pin) and link the upstream issue tracking the fix.
+      - Add a CHANGELOG entry under "## [Unreleased]" naming the CVE id and the bumped version.
+      - Land as a single PR whose title leads with the CVE id and links the advisory URL in the body.
+    output_expectations:
+      - One PR scoped to the dependency bump and the minimum call-site adjustments.
+      - CHANGELOG entry with CVE id and version delta.
+      - Commit subject begins with the CVE id.
+      - Reachability conclusion stated explicitly in the PR body.
+    notes: |
+      An unreachable CVE still gets patched. Reachability informs urgency, not whether to ship.

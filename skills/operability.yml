@@ -1,0 +1,28 @@
+version: 1
+skills:
+  - id: add-observability
+    title: Add Observability to an Existing Surface
+    type: skill
+    priority: 1
+    trigger: |
+      When an existing endpoint, scheduled job, or queue handler is going to production (or already there) without metrics, structured logs, or traces sufficient to debug it from the dashboard alone.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [operability]
+      tags: [operability, observability]
+    steps:
+      - Identify the entry boundary (HTTP route, scheduler tick, queue handler) and the application service it calls.
+      - Emit a request counter, a latency histogram, and an error counter, tagged with route and outcome only. No PII, no free-form user content in tags.
+      - Replace ad-hoc info logs in the handler with structured logs that carry a request id and the same tags as the metrics.
+      - Add or confirm a trace span covering the full handler, with child spans on external calls (database, HTTP, model).
+      - Run the surface once locally and confirm the metric, log line, and trace all appear for one real request before opening the PR.
+      - Link the dashboard panel (or alert) that would surface a regression in failure rate within minutes.
+    output_expectations:
+      - One metric set per surface, with consistent tag keys across request count, latency, and errors.
+      - Structured logs carry a request id matching the trace id.
+      - Trace spans cover every external call from the handler.
+      - PR body links the dashboard or alert that proves the failure path is visible.
+    notes: |
+      For model-backed features, reuse the patterns in spring-ai.yml::add-ai-observability. This skill is the non-AI counterpart and uses the same tag discipline.

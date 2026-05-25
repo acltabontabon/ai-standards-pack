@@ -1,29 +1,5 @@
 version: 1
 skills:
-  - id: review-pr
-    title: Review a Pull Request
-    type: skill
-    priority: 1
-    trigger: |
-      Before submitting or approving any pull request.
-    scope:
-      languages: []
-      frameworks: []
-      tools: []
-      tasks: [review]
-      tags: [review, workflow]
-    steps:
-      - Read the diff end to end, not just the parts you are familiar with.
-      - Confirm the change matches its stated scope. No drive-by edits.
-      - Verify tests describe the intended behavior, not the implementation.
-      - Confirm naming, error paths, and public API surface are intentional.
-      - Check the commit history is logical and bisect-friendly.
-    output_expectations:
-      - A review comment that names the largest concern first, supporting concerns after.
-      - Approval only when the scope, tests, and naming are all defensible.
-    notes: |
-      A PR that does two things should be two PRs.
-
   - id: review-ai-generated-code
     title: Review AI-Generated Code
     type: skill
@@ -69,25 +45,3 @@ skills:
     notes: |
       Public API changes are easier to land than to retract. Treat them with the same care as a schema migration.
 
-  - id: review-test-quality
-    title: Review Test Quality
-    type: skill
-    priority: 2
-    trigger: |
-      When evaluating new or modified tests in a PR.
-    scope:
-      languages: []
-      frameworks: []
-      tools: []
-      tasks: [review]
-      tags: [review, testing]
-    steps:
-      - Read the test name and confirm it describes a behavior, not a method call.
-      - Read the assertions and confirm they verify observable outcomes, not internal call sequences.
-      - Verify failure messages would help a future engineer diagnose the cause without opening the source.
-      - Confirm fixtures are minimal and arranged once per test.
-      - Reject tests that pass for the wrong reason (over-permissive matchers, unconditional truthy assertions).
-    output_expectations:
-      - A test suite where each test communicates intent without commentary.
-    notes: |
-      A test that always passes is a regression risk dressed up as coverage.

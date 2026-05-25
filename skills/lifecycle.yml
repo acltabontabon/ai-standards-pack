@@ -1,0 +1,28 @@
+version: 1
+skills:
+  - id: onboard-new-product
+    title: Onboard a New Product
+    type: skill
+    priority: 1
+    trigger: |
+      When a new product, service, or bounded-context module is being stood up inside an existing repo or a fresh one, and needs to come online with the team's standards already applied.
+    scope:
+      languages: []
+      frameworks: []
+      tools: []
+      tasks: [lifecycle, scaffold]
+      tags: [lifecycle, onboarding]
+    steps:
+      - Confirm the new product's name, owning team, and the standards pack id it will follow.
+      - Run Launchpad against the target directory to render AGENTS.md and the .ai/ companion files from the chosen pack.
+      - Pick the agent projections the team uses (Claude Code, Cursor, Windsurf) in the Launchpad projection picker so each tool gets its native discovery files.
+      - Scaffold the minimum production surface for the new module - one application service, one boundary adapter, one health endpoint, one happy-path test.
+      - Apply the add-observability skill before any user-facing endpoint goes in, so the first deploy is debuggable from the dashboard.
+      - Open the first PR with the rendered context files committed alongside the scaffold so reviewers see the standards in force from day one.
+    output_expectations:
+      - New module compiles and has a health endpoint plus one passing test.
+      - AGENTS.md and .ai/ companions are checked in at the module root.
+      - The agent projection chosen by the team is present in the repo.
+      - Observability is wired before any business endpoint is added.
+    notes: |
+      This skill is intentionally repo-aware. It expects Launchpad to have already resolved the standards pack against the target directory; the skill describes what an engineer does with the Launchpad output, not how to build Launchpad itself.

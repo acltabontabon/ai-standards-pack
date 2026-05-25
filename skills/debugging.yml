@@ -24,30 +24,6 @@ skills:
     notes: |
       A bug fix without a regression test invites the bug back.
 
-  - id: investigate-failing-test
-    title: Investigate a Failing Test
-    type: skill
-    priority: 2
-    trigger: |
-      When a test fails locally or in CI and the cause is not obvious from the assertion message.
-    scope:
-      languages: []
-      frameworks: []
-      tools: []
-      tasks: [bugfix]
-      tags: [debugging, testing]
-    steps:
-      - Read the test first; understand what behavior it claims to verify.
-      - Decide whether the test is wrong, the code is wrong, or the environment is wrong.
-      - If the test is wrong, fix the assertion to describe the intended behavior; do not just match current output.
-      - If the code is wrong, follow the fix-bug skill.
-      - If the environment is wrong (flaky, time-based, network-dependent), eliminate the cause; do not retry-loop around it.
-    output_expectations:
-      - A clear statement of which of the three categories applies.
-      - A test that passes for the right reason.
-    notes: |
-      A test that passes only after a retry is still failing.
-
   - id: trace-runtime-error
     title: Trace a Runtime Error
     type: skill
@@ -73,23 +49,3 @@ skills:
     notes: |
       An error logged but not surfaced to a metric is a future incident.
 
-  - id: reduce-reproduction
-    title: Reduce a Reproduction Case
-    type: skill
-    priority: 2
-    trigger: |
-      When the failure only reproduces with a large input or under a complex scenario.
-    scope:
-      languages: []
-      frameworks: []
-      tools: []
-      tasks: [bugfix]
-      tags: [debugging]
-    steps:
-      - "Bisect the input: halve it, keep the half that still fails, repeat."
-      - "Bisect the steps: remove operations one at a time, keep the minimum sequence that still fails."
-      - Capture the minimal repro as a test that the bug-fix commit will turn green.
-    output_expectations:
-      - A test under 30 lines that demonstrates the failure.
-    notes: |
-      The minimum repro is also the regression test.

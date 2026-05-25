@@ -28,9 +28,11 @@ includes:
   skills:
     - skills/delivery.yml
     - skills/debugging.yml
-    - skills/refactoring.yml
     - skills/review.yml
     - skills/spring-ai.yml
+    - skills/security.yml
+    - skills/operability.yml
+    - skills/lifecycle.yml
   checklists:
     - checklists/pull-request.yml
     - checklists/production-readiness.yml
